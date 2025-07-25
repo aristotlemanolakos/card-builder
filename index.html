@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Frame Builder</title>
+  <title>Card Builder</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center py-8">
   <div class="w-full max-w-md p-6 bg-white rounded-2xl shadow-xl border border-gray-200 mx-auto">
-    <h1 class="text-3xl font-extrabold mb-2 text-center text-gray-800 tracking-tight">Frame Builder</h1>
+    <h1 class="text-3xl font-extrabold mb-2 text-center text-gray-800 tracking-tight">Card Builder</h1>
     <p class="text-center text-gray-500 mb-4 text-sm">Upload an image, choose an aspect ratio, and export a beautiful framed card.<br><span class="text-xs text-gray-400">(Exported image is always 1200px wide)</span></p>
     <form id="upload-form" class="mb-4 flex flex-col gap-4">
       <input type="file" id="image-input" accept=".png,.jpg,.jpeg" class="file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-800 hover:file:bg-gray-200" />
@@ -22,7 +22,10 @@
         <button type="button" class="aspect-btn px-3 py-1 rounded-lg bg-gray-300 text-gray-800 font-medium shadow-sm transition-colors" data-ratio="1:1">1:1</button>
       </div>
     </form>
-    <button id="download-btn" class="mb-2 px-5 py-2 bg-gray-700 text-white rounded-lg shadow font-semibold text-base disabled:opacity-50 transition-colors block mx-auto" disabled>Download PNG</button>
+    <div class="flex gap-2 justify-center mb-4">
+      <button id="clear-btn" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold text-base disabled:opacity-50 transition-colors hover:bg-gray-300" disabled>Clear Image</button>
+      <button id="download-btn" class="px-5 py-2 bg-gray-700 text-white rounded-lg shadow font-semibold text-base disabled:opacity-50 transition-colors" disabled>Download PNG</button>
+    </div>
   </div>
   <canvas id="result-canvas" class="border rounded-xl shadow bg-gray-200" style="width:100%; max-width:400px; height:auto; display:block; margin:32px auto 0 auto;"></canvas>
   <script src="stackblur.min.js"></script>

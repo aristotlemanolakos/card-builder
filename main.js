@@ -6,6 +6,7 @@ const thumbnailPreview = document.getElementById('thumbnail-preview');
 const aspectButtons = document.querySelectorAll('.aspect-btn');
 const canvas = document.getElementById('result-canvas');
 const downloadBtn = document.getElementById('download-btn');
+const clearBtn = document.getElementById('clear-btn');
 
 // State
 let uploadedImage = null;
@@ -15,6 +16,7 @@ let selectedAspect = '2:1';
 imageInput.addEventListener('change', handleImageUpload);
 aspectButtons.forEach(btn => btn.addEventListener('click', handleAspectChange));
 downloadBtn.addEventListener('click', handleDownload);
+clearBtn.addEventListener('click', handleClear);
 
 function handleImageUpload(e) {
   const file = e.target.files[0];
@@ -48,8 +50,9 @@ function handleImageUpload(e) {
       thumbnailPreview.appendChild(thumb);
       // Draw canvas
       drawCanvas();
-      // Enable download button
+      // Enable download and clear buttons
       downloadBtn.disabled = false;
+      clearBtn.disabled = false;
     };
     img.src = event.target.result;
   };
@@ -256,4 +259,14 @@ function handleDownload() {
   link.download = `frame-card-${selectedAspect.replace(':', 'x')}-${Date.now()}.png`;
   link.href = exportCanvas.toDataURL('image/png');
   link.click();
+}
+
+function handleClear() {
+  uploadedImage = null;
+  imageInput.value = '';
+  thumbnailPreview.innerHTML = '';
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  downloadBtn.disabled = true;
+  clearBtn.disabled = true;
 }
