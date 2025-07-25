@@ -62,25 +62,31 @@ function handleImageUpload(e) {
 function handleAspectChange(e) {
   const btn = e.currentTarget;
   selectedAspect = btn.getAttribute('data-ratio');
-  // Update button styles for neutral scheme
+  // Update button styles for outline scheme
   aspectButtons.forEach(b => {
-    b.classList.remove('bg-gray-800', 'text-white', 'ring-2', 'ring-gray-400');
-    b.classList.add('bg-gray-300', 'text-gray-800');
+    b.classList.remove('border-gray-800', 'text-gray-800');
+    b.classList.add('border-gray-300', 'text-gray-600');
+    // Update SVG border color for unselected buttons
+    const svg = b.querySelector('svg');
+    if (svg) {
+      svg.classList.remove('border-gray-800/30');
+      svg.classList.add('border-gray-600/30');
+    }
   });
-  btn.classList.remove('bg-gray-300', 'text-gray-800');
-  btn.classList.add('bg-gray-800', 'text-white', 'ring-2', 'ring-gray-400');
+  btn.classList.remove('border-gray-300', 'text-gray-600');
+  btn.classList.add('border-gray-800', 'text-gray-800');
+  // Update SVG border color for selected button
+  const selectedSvg = btn.querySelector('svg');
+  if (selectedSvg) {
+    selectedSvg.classList.remove('border-gray-600/30');
+    selectedSvg.classList.add('border-gray-800/30');
+  }
+  // Always draw canvas to show aspect ratio change
   drawCanvas();
 }
 
 function drawCanvas() {
-  if (!uploadedImage) {
-    // Clear canvas if no image
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    return;
-  }
-
-  // Parse aspect ratio
+  // Parse aspect ratio and set canvas size (always do this)
   let [wRatio, hRatio] = selectedAspect.split(':').map(Number);
   // Set export size (fixed width 1200px)
   const exportWidth = 1200;
@@ -88,6 +94,12 @@ function drawCanvas() {
   canvas.width = exportWidth;
   canvas.height = exportHeight;
   const ctx = canvas.getContext('2d');
+
+  if (!uploadedImage) {
+    // Clear canvas if no image
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    return;
+  }
 
   // Draw blurred background (cover)
   const supportsFilter = 'filter' in ctx;
@@ -111,7 +123,7 @@ function drawCanvas() {
     ctx.drawImage(uploadedImage, bgX, bgY, bgDrawWidth, bgDrawHeight);
     ctx.restore();
   } else {
-    // Fallback: use StackBlur
+    // Fallback: use StackBlur with double radius for Safari
     // Draw background image to offscreen canvas
     const off = document.createElement('canvas');
     off.width = exportWidth;
@@ -132,7 +144,7 @@ function drawCanvas() {
       bgY = 0;
     }
     offCtx.drawImage(uploadedImage, bgX, bgY, bgDrawWidth, bgDrawHeight);
-    // Apply StackBlur (radius 80)
+    // Apply StackBlur (radius 160)
     if (window.StackBlur) {
       window.StackBlur.canvasRGBA(off, 0, 0, exportWidth, exportHeight, 160); // double radius
     }
