@@ -1,0 +1,13 @@
+/* Custom styles for Frame Card vanilla JS app */
+#thumbnail-preview img {
+  max-width: 120px;
+  max-height: 80px;
+  border-radius: 0.5rem;
+  margin: 0 auto;
+  display: block;
+}
+#result-canvas {
+  width: 100%;
+  max-width: 600px;
+  background: #e5e7eb;
+}
