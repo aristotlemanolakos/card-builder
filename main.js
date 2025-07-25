@@ -84,29 +84,57 @@ function drawCanvas() {
   const exportHeight = Math.round(exportWidth * hRatio / wRatio);
   canvas.width = exportWidth;
   canvas.height = exportHeight;
-  // No devicePixelRatio scaling for preview
-  // CSS will scale the preview proportionally
   const ctx = canvas.getContext('2d');
 
   // Draw blurred background (cover)
-  ctx.save();
-  ctx.filter = 'blur(80px)';
-  // Calculate cover size for background
-  const bgRatio = uploadedImage.width / uploadedImage.height;
-  let bgDrawWidth, bgDrawHeight, bgX, bgY;
-  if (exportWidth / exportHeight > bgRatio) {
-    bgDrawWidth = exportWidth;
-    bgDrawHeight = exportWidth / bgRatio;
-    bgX = 0;
-    bgY = (exportHeight - bgDrawHeight) / 2;
+  const supportsFilter = 'filter' in ctx;
+  if (supportsFilter) {
+    ctx.save();
+    ctx.filter = 'blur(80px)';
+    // Calculate cover size for background
+    const bgRatio = uploadedImage.width / uploadedImage.height;
+    let bgDrawWidth, bgDrawHeight, bgX, bgY;
+    if (exportWidth / exportHeight > bgRatio) {
+      bgDrawWidth = exportWidth;
+      bgDrawHeight = exportWidth / bgRatio;
+      bgX = 0;
+      bgY = (exportHeight - bgDrawHeight) / 2;
+    } else {
+      bgDrawHeight = exportHeight;
+      bgDrawWidth = exportHeight * bgRatio;
+      bgX = (exportWidth - bgDrawWidth) / 2;
+      bgY = 0;
+    }
+    ctx.drawImage(uploadedImage, bgX, bgY, bgDrawWidth, bgDrawHeight);
+    ctx.restore();
   } else {
-    bgDrawHeight = exportHeight;
-    bgDrawWidth = exportHeight * bgRatio;
-    bgX = (exportWidth - bgDrawWidth) / 2;
-    bgY = 0;
+    // Fallback: use StackBlur
+    // Draw background image to offscreen canvas
+    const off = document.createElement('canvas');
+    off.width = exportWidth;
+    off.height = exportHeight;
+    const offCtx = off.getContext('2d');
+    // Calculate cover size for background
+    const bgRatio = uploadedImage.width / uploadedImage.height;
+    let bgDrawWidth, bgDrawHeight, bgX, bgY;
+    if (exportWidth / exportHeight > bgRatio) {
+      bgDrawWidth = exportWidth;
+      bgDrawHeight = exportWidth / bgRatio;
+      bgX = 0;
+      bgY = (exportHeight - bgDrawHeight) / 2;
+    } else {
+      bgDrawHeight = exportHeight;
+      bgDrawWidth = exportHeight * bgRatio;
+      bgX = (exportWidth - bgDrawWidth) / 2;
+      bgY = 0;
+    }
+    offCtx.drawImage(uploadedImage, bgX, bgY, bgDrawWidth, bgDrawHeight);
+    // Apply StackBlur (radius 80)
+    if (window.StackBlur) {
+      window.StackBlur.canvasRGBA(off, 0, 0, exportWidth, exportHeight, 80);
+    }
+    ctx.drawImage(off, 0, 0);
   }
-  ctx.drawImage(uploadedImage, bgX, bgY, bgDrawWidth, bgDrawHeight);
-  ctx.restore();
 
   // Draw centered original image (contain) with border radius
   const fgRatio = uploadedImage.width / uploadedImage.height;
@@ -158,23 +186,50 @@ function handleDownload() {
   const ctx = exportCanvas.getContext('2d');
 
   // Draw blurred background (cover)
-  ctx.save();
-  ctx.filter = 'blur(80px)';
-  const bgRatio = uploadedImage.width / uploadedImage.height;
-  let bgDrawWidth, bgDrawHeight, bgX, bgY;
-  if (exportWidth / exportHeight > bgRatio) {
-    bgDrawWidth = exportWidth;
-    bgDrawHeight = exportWidth / bgRatio;
-    bgX = 0;
-    bgY = (exportHeight - bgDrawHeight) / 2;
+  const supportsFilter = 'filter' in ctx;
+  if (supportsFilter) {
+    ctx.save();
+    ctx.filter = 'blur(80px)';
+    const bgRatio = uploadedImage.width / uploadedImage.height;
+    let bgDrawWidth, bgDrawHeight, bgX, bgY;
+    if (exportWidth / exportHeight > bgRatio) {
+      bgDrawWidth = exportWidth;
+      bgDrawHeight = exportWidth / bgRatio;
+      bgX = 0;
+      bgY = (exportHeight - bgDrawHeight) / 2;
+    } else {
+      bgDrawHeight = exportHeight;
+      bgDrawWidth = exportHeight * bgRatio;
+      bgX = (exportWidth - bgDrawWidth) / 2;
+      bgY = 0;
+    }
+    ctx.drawImage(uploadedImage, bgX, bgY, bgDrawWidth, bgDrawHeight);
+    ctx.restore();
   } else {
-    bgDrawHeight = exportHeight;
-    bgDrawWidth = exportHeight * bgRatio;
-    bgX = (exportWidth - bgDrawWidth) / 2;
-    bgY = 0;
+    // Fallback: use StackBlur
+    const off = document.createElement('canvas');
+    off.width = exportWidth;
+    off.height = exportHeight;
+    const offCtx = off.getContext('2d');
+    const bgRatio = uploadedImage.width / uploadedImage.height;
+    let bgDrawWidth, bgDrawHeight, bgX, bgY;
+    if (exportWidth / exportHeight > bgRatio) {
+      bgDrawWidth = exportWidth;
+      bgDrawHeight = exportWidth / bgRatio;
+      bgX = 0;
+      bgY = (exportHeight - bgDrawHeight) / 2;
+    } else {
+      bgDrawHeight = exportHeight;
+      bgDrawWidth = exportHeight * bgRatio;
+      bgX = (exportWidth - bgDrawWidth) / 2;
+      bgY = 0;
+    }
+    offCtx.drawImage(uploadedImage, bgX, bgY, bgDrawWidth, bgDrawHeight);
+    if (window.StackBlur) {
+      window.StackBlur.canvasRGBA(off, 0, 0, exportWidth, exportHeight, 80);
+    }
+    ctx.drawImage(off, 0, 0);
   }
-  ctx.drawImage(uploadedImage, bgX, bgY, bgDrawWidth, bgDrawHeight);
-  ctx.restore();
 
   // Draw centered original image (contain) with border radius
   const fgRatio = uploadedImage.width / uploadedImage.height;
