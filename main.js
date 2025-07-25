@@ -131,7 +131,7 @@ function drawCanvas() {
     offCtx.drawImage(uploadedImage, bgX, bgY, bgDrawWidth, bgDrawHeight);
     // Apply StackBlur (radius 80)
     if (window.StackBlur) {
-      window.StackBlur.canvasRGBA(off, 0, 0, exportWidth, exportHeight, 80);
+      window.StackBlur.canvasRGBA(off, 0, 0, exportWidth, exportHeight, 160); // double radius
     }
     ctx.drawImage(off, 0, 0);
   }
@@ -226,7 +226,7 @@ function handleDownload() {
     }
     offCtx.drawImage(uploadedImage, bgX, bgY, bgDrawWidth, bgDrawHeight);
     if (window.StackBlur) {
-      window.StackBlur.canvasRGBA(off, 0, 0, exportWidth, exportHeight, 80);
+      window.StackBlur.canvasRGBA(off, 0, 0, exportWidth, exportHeight, 160); // double radius
     }
     ctx.drawImage(off, 0, 0);
   }
